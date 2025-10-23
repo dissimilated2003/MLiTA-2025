@@ -1,0 +1,110 @@
+/*
+	ВОЛИК АНДРЕЙ ОЛЕГОВИЧ ПС-23
+	
+	6.1. Счастливые билеты (8). 
+
+		Номера автобусных билетов состоят из 2N цифр, включая незначащие нули (1 ≤ N ≤ 500). 
+	Минимальный возможный номер состоит из 2N нулей, а максимальный – из 2N девяток. Студент Вася 
+	ездит в университет на автобусе и коллекционирует счастливые билеты, в которых сумма 
+	первых N цифр совпадает с суммой последних N цифр. Как и всякий настоящий коллекционер, 
+	Вася готов пойти на все для пополнения своей коллекции. Вместе с тем ему пока приходится 
+	учитывать свои финансовые возможности.
+		Каждый раз после приобретения билета Вася определяет, какое минимальное количество 
+	билетов нужно купить еще, чтобы среди них обязательно оказался счастливый билет. Если у него 
+	оказывается достаточно денег, он тут же покупает необходимое число билетов. Иногда он не 
+	успевает закончить расчеты, проезжает свою остановку и опаздывает на занятия. Помогите Васе.
+
+	Примеры:	^ input1.txt:		^ input2.txt:		^ input3.txt:
+				  2					  2					  2
+				  3817				  0839				  0000
+				^ output1.txt:		^ output2.txt:		^ output3.txt:
+				  12				  5					  0
+
+	Источник: --
+*/
+
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <fstream>
+
+int sumDigits(const std::string& ticket, int start, int len)
+{
+    int sum{};
+    for (int i = start; i < start + len; i++)
+    {
+        sum += ticket[i] - '0';
+    }
+
+    return sum;
+}
+
+void incrementNumber(std::string& ticket)
+{
+    int carry = 1;
+    for (int i = ticket.length() - 1; i >= 0; i--)
+    {
+        int digit = ticket[i] - '0' + carry;
+        if (digit == 10)
+        {
+            ticket[i] = '0';
+            carry = 1;
+        }
+        else
+        {
+            ticket[i] = '0' + digit;
+            carry = 0;
+            break;
+        }
+    }
+
+    if (carry == 1)
+    {
+        ticket.insert(ticket.begin(), '1');
+    }
+}
+
+int main()
+{
+    std::fstream input{ "input.txt" };
+    std::fstream output{ "output.txt" };
+    if (!input.is_open())
+    {
+        std::cerr << "Failed to open input file" << "\n";
+        return -1;
+    }
+
+    int N{};
+    std::string ticket{};
+    input >> N >> ticket;
+
+    int sumFirst = sumDigits(ticket, 0, N);
+    int sumLast = sumDigits(ticket, N, N);
+    std::cout << N << "\n" << ticket << "\n\n";
+    std::cout << "First half digits sum: " << sumFirst << "\n";
+    std::cout << "Last half digits sum: " << sumLast << "\n\n";
+    std::cout << "To hope ticket you need buy:" << "\n";
+
+    if (sumFirst == sumLast)
+    {
+        std::cout << 0 << "\n";
+        return 0;
+    }
+
+    int steps{};
+    while (true)
+    {
+        steps++;
+        incrementNumber(ticket);
+        sumFirst = sumDigits(ticket, 0, N);
+        sumLast = sumDigits(ticket, N, N);
+        if (sumFirst == sumLast)
+        {
+            std::cout << steps << "\n";
+            output << steps << "\n";
+            break;
+        }
+    }
+
+    return 0;
+}
