@@ -1,0 +1,146 @@
+#include <cstddef>
+#include <iostream>
+#include <fstream>
+#include <chrono>
+#include <iomanip>
+#include <new>
+#include <atomic>
+#include <cstdint>
+
+std::atomic<uint64_t> kBytesAllocated{ 0 };
+
+void* operator new(std::size_t count)
+{
+    kBytesAllocated.fetch_add(count);
+    return std::malloc(count);
+}
+
+void operator delete(void* ptr)
+{
+    std::free(ptr);
+}
+
+int CalculatePairsWithDifference(std::ifstream& input, std::ifstream& input2, int n, int d) {
+    int pairCount = 0;
+    int left{};
+    int right{};
+
+    input >> left;
+    input2 >> right;
+
+    int currentIndex = 0;
+    int candidateIndex = 0;
+    while (currentIndex < n) 
+    {
+        while (candidateIndex < currentIndex && left - right > d) 
+        {
+            input2 >> right;
+            candidateIndex++;
+        }
+
+        if (candidateIndex < currentIndex && left - right == d) 
+        {
+            pairCount++;
+        }
+
+        if (left == right)
+        {
+
+        }
+
+        currentIndex++;
+        if (currentIndex < n) 
+        {
+            input >> left;
+        }
+    }
+
+    return pairCount;
+}
+
+int main()
+{
+    auto start = std::chrono::high_resolution_clock::now();
+
+    const auto fileName = "input.txt";
+    std::ifstream input{ fileName };
+    int n, diff;
+    input >> n >> diff;
+    std::cout << "N = " << n << ", D = " << diff << "\n";
+
+    std::ifstream input2{ fileName };
+    int buff{};
+    input2 >> buff >> buff;
+    int result = CalculatePairsWithDifference(input, input2, n, diff);
+
+    std::ofstream output("output.txt");
+    output << result << "\n";
+    std::cout << "\n" << result << "\n\n";
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = end - start;
+    double elapsed_seconds = elapsed.count() / 1000.0;
+    std::cout << std::fixed << std::setprecision(3) << elapsed_seconds << " sec." << "\n";
+
+    float bytesAllocated = static_cast<float>(kBytesAllocated);
+    float kbAllocated = bytesAllocated / 1024.0f;
+    float mBytesAllocated = kbAllocated / 1024.0f;
+    std::cout << "Bytes allocated on heap: " << bytesAllocated << "\n";
+    std::cout << "Kilobytes: " << kbAllocated << "\n";
+    std::cout << "Megabytes: " << mBytesAllocated << "\n";
+    return 0;
+}
+
+перед тобой программа, которая решает задачу:
+10.5. Последовательность 3 (5)
+
+    Задана неубывающая последовательность целых чисел. Найти количество пар
+чисел с заданной разностью D.
+    Ввод из файла INPUT.TXT. В первой строке задаются через пробел
+два целых числа: количество членов последовательности N и разность D
+(2 ≤ N ≤ 10^6, 1 ≤ D ≤ 10^9). Во второй строке вводятся через пробел N натуральных
+чисел последовательности A1 ≤ A2 ≤ ... ≤ AN  (Ai ≤ 10^9).
+    Вывод в файл OUTPUT.TXT. Вывести число пар (Ai, Aj) таких, что Ai – Aj = D.
+Ограничения: Объем используемой памяти до 1 Мб.
+
+Пример:
+input.txt:
+    10 7
+    3 5 12 18 25 40 47 47 48 49
+output.txt:
+    4
+
+с обычными тестами всё хорошо, она работает правильно, читает в два потока, в одном левый указатель, во втором - правый указатель
+у меня с входными данными:
+5 4
+8 8 8 12 12
+вывело 2, а должно было вывести 6:
+первая 8 + первая 12
+вторая 8 + первая 12
+третья 8 + первая 12
+первая 8 + вторая 12
+вторая 8 + вторая 12
+третья 8 + вторая 12
+итого 6. не трогай основную программу, измени логику функции CalculatePairsWithDifference, чтобы на этом тесте она считала правильно. она читает в два потока, так и должно быть. остальное не меняй ничего. либо покажи мне, где нужно изменить код, чтобы работало
+
+так. тест где должно вывести 6 у меня не прошло. давай мы вернемся к тестам, которые все.
+
+тест 1:
+10 7
+3 5 12 18 25 40 47 47 48 49
+правильный вывод: 4
+у тебя вывело: 4 -> правильно (правильные пары: 5-12, 18-25, 40-47, 40-47)
+
+тест 2:
+5 4
+8 8 8 12 12
+правильный ответ: 6
+у тебя вывело: 2 -> неправильно (6 пар 8-12)
+
+тест 3:
+7 7
+3 5 7 10 12 14 17
+правильный ответ: 4
+у тебя вывело: 4 -> правильно (пары: 3-10, 5-12, 7-14, 10-17)
+
+поправь пожалуйста функцию, чтобы все тесты проходила верно

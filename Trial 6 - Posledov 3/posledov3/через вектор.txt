@@ -1,0 +1,129 @@
+/*
+    ВОЛИК АНДРЕЙ ОЛЕГОВИЧ ПС-23
+
+    10.5. Последовательность 3 (5)
+
+        Задана неубывающая последовательность целых чисел. Найти количество пар 
+    чисел с заданной разностью D.
+        Ввод из файла INPUT.TXT. В первой строке задаются через пробел 
+    два целых числа: количество членов последовательности N и разность D 
+    (2 ≤ N ≤ 10^6, 1 ≤ D ≤ 10^9). Во второй строке вводятся через пробел N натуральных 
+    чисел последовательности A1 ≤ A2 ≤ ... ≤ AN  (Ai ≤ 10^9).
+        Вывод в файл OUTPUT.TXT. Вывести число пар (Ai, Aj) таких, что Ai – Aj = D.
+
+    Ограничения: Объем используемой памяти до 1 Мгб.
+            -------------------------------------
+            |    input.txt:                     |
+   Пример:  |    10 7                           |
+            |    3 5 12 18 25 40 47 47 48 49    |
+            |-----------------------------------|
+            |    output.txt:                    |
+            |    4                              |
+            -------------------------------------
+
+    Источник: --
+*/
+
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <chrono>
+#include <iomanip>
+
+using Order = std::vector<int>;
+
+void ReadOrder(Order& order, int& diff, int& n)
+{
+    std::ifstream input{ "input.txt" };
+    input >> n >> diff;
+    std::cout << "N = " << n << ", D = " << diff << "\n";
+
+    order.resize(n);
+    for (int i = 0; i < n; ++i)
+    {
+        input >> order[i];
+    }
+}
+
+void ViewOrder(const Order& order)
+{
+    for (const auto& iter : order)
+    {
+        std::cout << iter << " ";
+    }
+    std::cout << "\n";
+}
+
+int CalculateDifferenceInOrder(const Order& order, int diff)
+{
+    int count = 0;
+    size_t j = 1;
+    for (size_t i = 0; i < order.size(); ++i)
+    {
+        if (i > 0 && order[i] == order[i - 1])
+        {
+            continue;
+        }
+
+        while (j < order.size() && order[j] - order[i] < diff)
+        {
+            ++j;
+        }
+
+        if (j >= order.size())
+        {
+            break;
+        }
+
+        if (order[j] - order[i] == diff)
+        {
+            int cnt_i = 1;
+            int cnt_j = 1;
+
+            while (i + cnt_i < order.size() && order[i + cnt_i] == order[i])
+            {
+                ++cnt_i;
+            }
+
+            while (j + cnt_j < order.size() && order[j + cnt_j] == order[j])
+            {
+                ++cnt_j;
+            }
+
+            count += cnt_i * cnt_j;
+            j += cnt_j;
+        }
+    }
+    return count;
+}
+
+int main()
+{
+    auto start = std::chrono::high_resolution_clock::now();
+
+    Order order{};
+    int n{};
+    int diff{};
+    ReadOrder(order, diff, n);
+    
+    if (n <= 100) {
+        ViewOrder(order);
+    }
+    else
+    {
+        std::cout << "View mode disabled [n > 100]" << "\n";
+    }
+
+    int result = CalculateDifferenceInOrder(order, diff);
+    
+    std::ofstream output{ "output.txt" };
+    output << result << "\n";
+    std::cout << "\n" << result << "\n\n";
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = end - start;
+    double elapsed_seconds = elapsed.count() / 1000.0;
+    std::cout << std::fixed << std::setprecision(3) << elapsed_seconds << " sec." << "\n";
+
+    return 0;
+}
