@@ -46,7 +46,8 @@ int ReadAndCheckInput(uint64_t& n, std::string& expression)
 
 bool IsValidExpression(uint64_t n, std::string expression)
 {
-    for (char iter : expression) {
+    for (char iter : expression) 
+    {
         if (iter != 'a' && iter != 'b')
         {
             std::cerr << "Only 'a' or 'b' allowed\n";
@@ -95,4 +96,5 @@ int main()
     outputFile.close();
 
     return 0;
+
 }
