@@ -78,7 +78,8 @@ int CalculatePairsWithDifference(std::ifstream& input, std::ifstream& input2, in
             } 
             while (a == current_a);
 
-            do {
+            do 
+            {
                 count_b++;
                 if (!(input2 >> b)) break;
             } 
@@ -125,3 +126,4 @@ int main()
     return 0;
 
 }
+
