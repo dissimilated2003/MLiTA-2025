@@ -1,0 +1,58 @@
+int PokrasilZabor(const Zabor& zabor)
+{
+    // Находим индексы неокрашенных досок
+    std::vector<int> unpainted;
+    for (int i = 0; i < zabor.n; ++i)
+    {
+        if (zabor.zabor[i] == '0')
+        {
+            unpainted.push_back(i);
+        }
+    }
+
+    int total_unpainted = unpainted.size();
+    if (total_unpainted == 0)
+    {
+        return 0; // Все доски уже покрашены
+    }
+
+    // Инициализация массива dp
+    std::vector<int> dp(total_unpainted + 1, INT_MAX);
+    dp[0] = 0; // Нулевая стоимость для нуля досок
+
+    // Обработка каждого предложения
+    for (const auto& offer : zabor.offers)
+    {
+        int Ai = offer.ai;
+        int Ci = offer.ci;
+
+        // Обновляем dp для каждого количества неокрашенных досок
+        for (int i = 0; i <= total_unpainted; ++i)
+        {
+            if (dp[i] == INT_MAX)
+            {
+                continue; // Пропускаем недостижимые состояния
+            }
+
+            // Пытаемся покрыть Ai досок, начиная с i
+            int j = std::min(i + Ai, total_unpainted);
+            dp[j] = std::min(dp[j], dp[i] + Ci);
+        }
+    }
+
+    // Учитываем замкнутость забора
+    // Если первая и последняя доски идут подряд, их можно покрасить одним предложением
+    if (unpainted.front() == 0 && unpainted.back() == zabor.n - 1)
+    {
+        // Ищем предложение, которое может покрыть первую и последнюю доски
+        for (const auto& offer : zabor.offers)
+        {
+            if (offer.ai >= 2)
+            {
+                dp[total_unpainted] = std::min(dp[total_unpainted], dp[total_unpainted - 2] + offer.ci);
+            }
+        }
+    }
+
+    return dp[total_unpainted];
+}
