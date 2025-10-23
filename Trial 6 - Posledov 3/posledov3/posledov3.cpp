@@ -39,7 +39,7 @@ void* operator new(std::size_t count) noexcept
     return std::malloc(count);
 }
 
-inline void operator delete(void* ptr)
+void operator delete(void* ptr)
 {
     std::free(ptr);
 }
@@ -123,4 +123,5 @@ int main()
     std::cout << "Kilobytes: " << kbAllocated << "\n";
     std::cout << "Megabytes: " << mBytesAllocated << "\n";
     return 0;
+
 }
