@@ -27,46 +27,59 @@ using std::string;
 using Row = std::vector<char>;
 using Matrix = std::vector<Row>;
 
-void readFile(Matrix& Matrix, int& n) {
+void readFile(Matrix& Matrix, int& n) 
+{
     std::ifstream inFile{ "input.txt" };
-    if (!inFile) {
+    if (!inFile) 
+    {
         std::cerr << "Out of file\n";
         return;
     }
 
     inFile >> n;
-    if (n < 3 || n > 33) {
+    if (n < 3 || n > 33) 
+    {
         std::cerr << "Out of borderline\n";
         return;
     }
 
     Matrix.resize(n, Row(n));
-    for (int y = 0; y < n; y++) {
-        for (int x = 0; x < n; x++) {
+    for (int y = 0; y < n; y++) 
+    {
+        for (int x = 0; x < n; x++) 
+        {
             inFile >> Matrix[y][x];
         }
     }
 }
 
-void redeclareMatrix(Matrix& Labyrinth, Matrix& Matrix, int& n) {
+void redeclareMatrix(Matrix& Labyrinth, Matrix& Matrix, int& n) 
+{
     std::ifstream inFile{ "input.txt" };
     inFile >> n;
     int dn = n + 2;
     Labyrinth.resize(dn, Row(dn));
     
     int breadth = Labyrinth.size() - 3;
-    for (int y = 0; y < dn; y++) {
-        for (int x = 0; x < dn; x++) {
-            if ((y < 2 && x < 2) || (y > breadth && x > breadth)) {
+    for (int y = 0; y < dn; y++) 
+    {
+        for (int x = 0; x < dn; x++) 
+        {
+            if ((y < 2 && x < 2) || (y > breadth && x > breadth)) 
+            {
                 Labyrinth[y][x] = '.';
-            } else {
+            } 
+            else 
+            {
                 Labyrinth[y][x] = '#';
             }
         }
     }
 
-    for (int y = 1; y <= n; y++) {
-        for (int x = 1; x <= n; x++) {
+    for (int y = 1; y <= n; y++) 
+    {
+        for (int x = 1; x <= n; x++) 
+        {
             Labyrinth[y][x] = Matrix[y - 1][x - 1];
         }
     }
@@ -75,37 +88,51 @@ void redeclareMatrix(Matrix& Labyrinth, Matrix& Matrix, int& n) {
     Labyrinth[n][n] = '.';
 }
 
-int innerWallSearch(Matrix& Matrix) {
+int innerWallSearch(Matrix& Matrix) 
+{
     int n = Matrix.size();
     std::vector<std::vector<bool>> visited(n, std::vector<bool>(n, false));
     int totalPaintedWalls{ 0 };
-    const std::vector<std::pair<int, int>> directions = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+    const std::vector<std::pair<int, int>> directions = 
+    { 
+        {-1, 0}, 
+        {1, 0}, 
+        {0, -1}, 
+        {0, 1} 
+    };
     
-    auto paintWallsFrom = [&](int startX, int startY) -> int {
+    auto paintWallsFrom = [&](int startX, int startY) -> int 
+    {
         int paintedWalls{ 0 };
         std::stack<std::pair<int, int>> stack{};
         stack.push({ startX, startY });
         visited[startX][startY] = true;
 
-        while (!stack.empty()) {
+        while (!stack.empty()) 
+        {
             auto top = stack.top();
             int x = top.first;
             int y = top.second;
             stack.pop();
 
-            for (const auto& direction : directions) {
+            for (const auto& direction : directions) 
+            {
                 int dx = direction.first;
                 int dy = direction.second;
                 int newX = x + dx;
                 int newY = y + dy;
 
-                if (newX < 0 || newY < 0 || newX >= n || newY >= n) {
+                if (newX < 0 || newY < 0 || newX >= n || newY >= n) 
+                {
                     continue;
                 }
 
-                if (Matrix[newX][newY] == '#') {
+                if (Matrix[newX][newY] == '#') 
+                {
                     paintedWalls++;
-                } else if (Matrix[newX][newY] == '.' && !visited[newX][newY]) {
+                } 
+                else if (Matrix[newX][newY] == '.' && !visited[newX][newY]) 
+                {
                     visited[newX][newY] = true;
                     stack.push({ newX, newY });
                 }
@@ -115,36 +142,43 @@ int innerWallSearch(Matrix& Matrix) {
         return paintedWalls;
     };
 
-    auto isAvailable = [&]() -> bool {
+    auto isAvailable = [&]() -> bool 
+    {
         std::stack<std::pair<int, int>> stack{};
         stack.push({ 0, 0 });
         visited.assign(n, std::vector<bool>(n, false));
         visited[0][0] = true;
 
-        while (!stack.empty()) {
+        while (!stack.empty()) 
+        {
             auto top = stack.top();
             int x = top.first;
             int y = top.second;
             stack.pop();
 
-            if (x == n - 1 && y == n - 1) {
+            if (x == n - 1 && y == n - 1) 
+            {
                 return true;
             }
 
-            for (const auto& direction : directions) {
+            for (const auto& direction : directions) 
+            {
                 int dx = direction.first;
                 int dy = direction.second;
                 int newX = x + dx;
                 int newY = y + dy;
 
-                if (newX < 0 || newY < 0 || newX >= n || newY >= n) {
+                if (newX < 0 || newY < 0 || newX >= n || newY >= n) 
+                {
                     continue;
                 }
 
-                if (Matrix[newX][newY] == '#') {
+                if (Matrix[newX][newY] == '#') 
+                {
 
                 }
-                else if (Matrix[newX][newY] == '.' && !visited[newX][newY]) {
+                else if (Matrix[newX][newY] == '.' && !visited[newX][newY]) 
+                {
                     visited[newX][newY] = true;
                     stack.push({ newX, newY });
                 }
@@ -154,10 +188,13 @@ int innerWallSearch(Matrix& Matrix) {
         return false;
     };
 
-    if (isAvailable()) {
+    if (isAvailable()) 
+    {
         visited.assign(n, std::vector<bool>(n, false));
         totalPaintedWalls = paintWallsFrom(0, 0);
-    } else {
+    } 
+    else 
+    {
         visited.assign(n, std::vector<bool>(n, false));
         totalPaintedWalls += paintWallsFrom(0, 0);
         visited.assign(n, std::vector<bool>(n, false));
@@ -167,10 +204,13 @@ int innerWallSearch(Matrix& Matrix) {
     return totalPaintedWalls;
 }
 
-void printVV(Matrix& Matrix, int& n) {
+void printVV(Matrix& Matrix, int& n) 
+{
     n = Matrix.size();
-    for (int y = 0; y < n; y++) {
-        for (int x = 0; x < n; x++) {
+    for (int y = 0; y < n; y++) 
+    {
+        for (int x = 0; x < n; x++) 
+        {
             std::cout << Matrix[y][x];
         }
         std::cout << "\n";
@@ -178,7 +218,8 @@ void printVV(Matrix& Matrix, int& n) {
     std::cout << "\n";
 }
 
-int main() {
+int main() 
+{
     int n{};
 
     Matrix squareMatrix{};
@@ -204,4 +245,5 @@ int main() {
     outputFile.close();
     
     return 0;
+
 }
