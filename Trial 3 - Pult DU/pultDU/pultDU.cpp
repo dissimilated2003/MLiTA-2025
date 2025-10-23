@@ -29,7 +29,8 @@
 #include <climits>
 
 using Navigate = std::array<int, 3>;
-struct Pult {
+struct Pult 
+{
 	Navigate firstRow;
 	int upwardArrow;
 	Navigate secondRow;
@@ -39,10 +40,12 @@ struct Pult {
 	int zeroButton;
 };
 
-void ReadInput(Pult& pult, int& current, int& destination) {
+void ReadInput(Pult& pult, int& current, int& destination) 
+{
 	std::ifstream inputFile{ "input.txt" };
 
-	if (!inputFile.is_open()) {
+	if (!inputFile.is_open()) 
+	{
 		std::cerr << "Failed to open input file\n";
 	}
 
@@ -56,7 +59,8 @@ void ReadInput(Pult& pult, int& current, int& destination) {
 	inputFile >> current >> destination;
 }
 
-void PrintPult(Pult& pult, int& current, int& destination) {
+void PrintPult(Pult& pult, int& current, int& destination) 
+{
 	std::cout << "Pult & channel change data:\n";
 	std::cout << pult.firstRow[0] << " " << pult.firstRow[1] << " " << pult.firstRow[2] << " ";
 	std::cout << pult.upwardArrow << "\n";
@@ -67,25 +71,37 @@ void PrintPult(Pult& pult, int& current, int& destination) {
 	std::cout << current << " " << destination << "\n\n";
 }
 
-bool IsDigitAvailable(const Pult& pult, int digit) {
-	if (digit == 0) {
+bool IsDigitAvailable(const Pult& pult, int digit) 
+{
+	if (digit == 0) 
+	{
 		return pult.zeroButton;
-	} else if (digit >= 1 && digit <= 3) {
+	} 
+	else if (digit >= 1 && digit <= 3) 
+	{
 		return pult.firstRow[digit - 1];
-	} else if (digit >= 4 && digit <= 6) {
+	} 
+	else if (digit >= 4 && digit <= 6) 
+	{
 		return pult.secondRow[digit - 4];
-	} else if (digit >= 7 && digit <= 9) {
+	} 
+	else if (digit >= 7 && digit <= 9) 
+	{
 		return pult.thirdRow[digit - 7];
 	}
+	
 	return false;
 }
 
-int ChannelTravel(Pult& pult, int& current, int& destination) {
-	if (current == destination) {
+int ChannelTravel(Pult& pult, int& current, int& destination) 
+{
+	if (current == destination) 
+	{
 		return 0;
 	}
 
-	if (current < 0 || current > 99 || destination < 0 || destination > 99) {
+	if (current < 0 || current > 99 || destination < 0 || destination > 99) 
+	{
 		return -1;
 	}
 	
@@ -96,7 +112,8 @@ int ChannelTravel(Pult& pult, int& current, int& destination) {
 		std::any_of(pult.secondRow.begin(), pult.secondRow.end(), [](int x) { return x == 1; }) ||
 		std::any_of(pult.thirdRow.begin(), pult.thirdRow.end(), [](int x) { return x == 1; });
 
-	if (!canUseArrows && !canUseTwoSignButton && !canUseDigits) {
+	if (!canUseArrows && !canUseTwoSignButton && !canUseDigits) 
+	{
 		return -1;
 	}
 
@@ -105,41 +122,54 @@ int ChannelTravel(Pult& pult, int& current, int& destination) {
 	std::queue<int> tapQueue{};
 	tapQueue.push(current);
 
-	while (!tapQueue.empty()) {
+	while (!tapQueue.empty()) 
+	{
 		int currentChannel = tapQueue.front();
 		tapQueue.pop();
 		int currentTaps = minTaps[currentChannel];
 
-		if (pult.upwardArrow) {
+		if (pult.upwardArrow) 
+		{
 			int nextChannel = (currentChannel + 1) % 100;
-			if (currentTaps + 1 < minTaps[nextChannel]) {
+			if (currentTaps + 1 < minTaps[nextChannel]) 
+			{
 				minTaps[nextChannel] = currentTaps + 1;
-				if (nextChannel == destination) {
+				if (nextChannel == destination) 
+				{
 					return minTaps[nextChannel];
 				}
+				
 				tapQueue.push(nextChannel);
 			}
 		}
 
-		if (pult.downwardArrow) {
+		if (pult.downwardArrow) 
+		{
 			int nextChannel = (currentChannel - 1 + 100) % 100;
-			if (currentTaps + 1 < minTaps[nextChannel]) {
+			if (currentTaps + 1 < minTaps[nextChannel]) 
+			{
 				minTaps[nextChannel] = currentTaps + 1;
-				if (nextChannel == destination) {
+				if (nextChannel == destination) 
+				{
 					return minTaps[nextChannel];
 				}
+				
 				tapQueue.push(nextChannel);
 			}
 		}
 
-		if (pult.twoSignButton) {
-			for (int i = 0; i < 10; ++i) {
-				for (int j = 0; j < 10; ++j) {
-					if (IsDigitAvailable(pult, i) && IsDigitAvailable(pult, j)) {
+		if (pult.twoSignButton) 
+		{
+			for (int i = 0; i < 10; ++i) 
+			{
+				for (int j = 0; j < 10; ++j) 
+				{
+					if (IsDigitAvailable(pult, i) && IsDigitAvailable(pult, j)) 
+					{
 						int nextChannel = i * 10 + j;
 						int tapsForTwoDigits = currentTaps + 3;
-
-						if (tapsForTwoDigits < minTaps[nextChannel]) {
+						if (tapsForTwoDigits < minTaps[nextChannel]) 
+						{
 							minTaps[nextChannel] = tapsForTwoDigits;
 							tapQueue.push(nextChannel);
 						}
@@ -148,34 +178,44 @@ int ChannelTravel(Pult& pult, int& current, int& destination) {
 			}
 		}
 
-		for (int i = 0; i < 10; ++i) {
-			if (IsDigitAvailable(pult, i)) {
+		for (int i = 0; i < 10; ++i) 
+		{
+			if (IsDigitAvailable(pult, i)) 
+			{
 				int nextChannel = i;
 				int tapsForOneDigit = currentTaps + 1;
-
-				if (tapsForOneDigit < minTaps[nextChannel]) {
+				if (tapsForOneDigit < minTaps[nextChannel]) 
+				{
 					minTaps[nextChannel] = tapsForOneDigit;
 					tapQueue.push(nextChannel);
 				}
 
-				if (pult.upwardArrow) {
+				if (pult.upwardArrow) 
+				{
 					int finalChannel = (nextChannel + 1) % 100;
-					if (tapsForOneDigit + 1 < minTaps[finalChannel]) {
+					if (tapsForOneDigit + 1 < minTaps[finalChannel]) 
+					{
 						minTaps[finalChannel] = tapsForOneDigit + 1;
-						if (finalChannel == destination) {
+						if (finalChannel == destination) 
+						{
 							return minTaps[finalChannel];
 						}
+						
 						tapQueue.push(finalChannel);
 					}
 				}
 
-				if (pult.downwardArrow) {
+				if (pult.downwardArrow) 
+				{
 					int finalChannel = (nextChannel - 1 + 100) % 100;
-					if (tapsForOneDigit + 1 < minTaps[finalChannel]) {
+					if (tapsForOneDigit + 1 < minTaps[finalChannel]) 
+					{
 						minTaps[finalChannel] = tapsForOneDigit + 1;
-						if (finalChannel == destination) {
+						if (finalChannel == destination) 
+						{
 							return minTaps[finalChannel];
 						}
+						
 						tapQueue.push(finalChannel);
 					}
 				}
@@ -186,7 +226,8 @@ int ChannelTravel(Pult& pult, int& current, int& destination) {
 	return minTaps[destination] == INT_MAX ? -1 : minTaps[destination];
 }
 
-int main() {
+int main() 
+{
 	setlocale(LC_ALL, "Rus");
 
 	Pult pult{};
@@ -198,7 +239,8 @@ int main() {
 
 	int totalMinTaps = ChannelTravel(pult, currentChannel, destinationChannel);
 	std::ofstream outputFile{ "output.txt" };
-	if (!outputFile.is_open()) {
+	if (!outputFile.is_open()) 
+	{
 		std::cerr << "Failed to open output file\n";
 		return 1;
 	}
@@ -208,4 +250,5 @@ int main() {
 	outputFile.close();
 
 	return 0;
+
 }
