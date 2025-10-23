@@ -40,7 +40,8 @@
 
 using std::string;
 
-struct Furniture {
+struct Furniture 
+{
 	int side;
 	int x;
 	int y;
@@ -50,45 +51,56 @@ using Room = std::vector<Furniture>;
 
 using Matrix = std::vector<std::vector<char>>;
 
-void readFile(Room& room, int& n, int& m) {
+void readFile(Room& room, int& n, int& m) 
+{
 	std::ifstream inputFile{ "input.txt" };
 	inputFile >> n >> m;
-	if (m > 100) {
+	if (m > 100) 
+	{
 		std::cerr << "out of data limit! \n";
 	}
 	
 	room.resize(n);
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++) 
+	{
 		inputFile >> room[i].side >> room[i].x >> room[i].y;
 	}
 }
 
-Matrix declareMatrix(Room& room, int& n, int& m) {
+Matrix declareMatrix(Room& room, int& n, int& m) 
+{
 	Matrix matrix{};
 	matrix.resize(m);
-	for (auto& row : matrix) {
+	for (auto& row : matrix) 
+	{
 		row.resize(m);
 	}
 
-	for (int i = 0; i < m; i++) {
-		for (int j = 0; j < m; j++) {
+	for (int i = 0; i < m; i++) 
+	{
+		for (int j = 0; j < m; j++) 
+		{
 			matrix[i][j] = '.';
 		}
 	}
 
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++) 
+	{
 		int startX = room[i].x;
 		int endX = room[i].x + room[i].side;
 		int startY = room[i].y;
 		int endY = room[i].y + room[i].side;
 
-		if (startX < 0 || startY < 0 || endX > m || endY > m) {
+		if (startX < 0 || startY < 0 || endX > m || endY > m) 
+		{
 			std::cerr << "furniture out of borderline! \n";
 			continue;
 		}
 
-		for (int j = room[i].x; j < endX; j++) {
-			for (int k = room[i].y; k < endY; k++) {
+		for (int j = room[i].x; j < endX; j++) 
+		{
+			for (int k = room[i].y; k < endY; k++) 
+			{
 				matrix[k][j] = '#';
 			}
 		}
@@ -97,27 +109,37 @@ Matrix declareMatrix(Room& room, int& n, int& m) {
 	return matrix;
 }
 
-int searchMaxRegion(Matrix& matrix, int startX, int startY, int& m) {
-	const std::vector<std::pair<int, int>> directions = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+int searchMaxRegion(Matrix& matrix, int startX, int startY, int& m) 
+{
+	const std::vector<std::pair<int, int>> directions = 
+	{ 
+		{-1, 0}, 
+		{1, 0}, 
+		{0, -1}, 
+		{0, 1} 
+	};
 	std::stack<std::pair<int, int>> stack{};
 	stack.push({ startY, startX });
 	int regionSize{ 0 };
 
-	while (!stack.empty()) {
+	while (!stack.empty()) 
+	{
 		auto top = stack.top();
 		int y = top.first;
 		int x = top.second;
 		stack.pop();
 
 		bool skip = y < 0 || y >= m || x < 0 || x >= m || matrix[y][x] != '.';
-		if (skip) {
+		if (skip) 
+		{
 			continue;
 		}
 
 		matrix[y][x] = '#';
 		regionSize++;
 
-		for (const auto& direction : directions) {
+		for (const auto& direction : directions) 
+		{
 			int dy = direction.first;
 			int dx = direction.second;
 			stack.push({ y + dy, x + dx });
@@ -127,12 +149,16 @@ int searchMaxRegion(Matrix& matrix, int startX, int startY, int& m) {
 	return regionSize;
 }
 
-int regionAnalyzer(Matrix& matrix, int& m) {
+int regionAnalyzer(Matrix& matrix, int& m) 
+{
 	int maxRegionArea{ 0 };
 
-	for (int y = 0; y < m; y++) {
-		for (int x = 0; x < m; x++) {
-			if (matrix[y][x] == '.') {
+	for (int y = 0; y < m; y++) 
+	{
+		for (int x = 0; x < m; x++) 
+		{
+			if (matrix[y][x] == '.') 
+			{
 				int currentRegionArea = searchMaxRegion(matrix, x, y, m);
 				maxRegionArea = std::max(maxRegionArea, currentRegionArea);
 			}
@@ -142,27 +168,33 @@ int regionAnalyzer(Matrix& matrix, int& m) {
 	return maxRegionArea;
 }
 
-void printReadedInput(Room& room, int& n, int& m) {
+void printReadedInput(Room& room, int& n, int& m) 
+{
 	std::cout << "input data: \n";
 	std::cout << n << " " << m << "\n";
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++) 
+	{
 		std::cout << room[i].side << " ";
 		std::cout << room[i].x << " ";
 		std::cout << room[i].y << "\n";
 	}
 }
 
-void printMatrix(Matrix& matrix, int& m) {
+void printMatrix(Matrix& matrix, int& m) 
+{
 	std::cout << "inner matrix content: \n";
-	for (int i = 0; i < m; i++) {
-		for (int j = 0; j < m; j++) {
+	for (int i = 0; i < m; i++) 
+	{
+		for (int j = 0; j < m; j++) 
+		{
 			std::cout << matrix[i][j];
 		}
 		std::cout << "\n";
 	}
 }
 
-int main() {
+int main() 
+{
 	Room room{};
 	int n{}; // кол-во мебели
 	int m{}; // размер комнаты
@@ -181,4 +213,5 @@ int main() {
 	outputFile.close();
 
 	return 0;
+
 }
